@@ -5,7 +5,8 @@ import ButecoCard from "@/components/ButecoCard";
 import CircuitPanel from "@/components/CircuitPanel";
 import { butecos, cities } from "@/data/butecos";
 import type { Buteco, City } from "@/data/butecos";
-import { Search, Filter, List, X } from "lucide-react";
+import { TAG_MAP } from "@/lib/tags";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
@@ -18,19 +19,56 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+const ALL_TAGS = Object.keys(TAG_MAP);
+
+// Toggle switch component
+function TagToggle({ tag, enabled, onToggle }: { tag: string; enabled: boolean; onToggle: () => void }) {
+  const t = TAG_MAP[tag];
+  if (!t) return null;
+  return (
+    <div
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "8px 0", borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <span style={{ fontSize: 13, fontWeight: 600, color: enabled ? "var(--foreground)" : "var(--muted-foreground)", display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ fontSize: 16 }}>{t.emoji}</span> {t.label}
+      </span>
+      <button
+        onClick={onToggle}
+        style={{
+          width: 40, height: 22, borderRadius: 999,
+          background: enabled ? "var(--primary)" : "var(--border)",
+          border: "none", cursor: "pointer",
+          position: "relative", transition: "background 0.2s ease", flexShrink: 0,
+        }}
+      >
+        <span style={{
+          position: "absolute", top: 2, left: enabled ? 20 : 2,
+          width: 18, height: 18, borderRadius: "50%",
+          background: "#fff", transition: "left 0.2s ease",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+        }} />
+      </button>
+    </div>
+  );
+}
+
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState<City>("Rio de Janeiro");
   const [selectedButeco, setSelectedButeco] = useState<Buteco | null>(null);
   const [search, setSearch] = useState("");
   const [mobileListOpen, setMobileListOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [disabledTags, setDisabledTags] = useState<Set<string>>(new Set());
   const isMobile = useIsMobile();
 
   const cityConfig = cities.find((c) => c.value === selectedCity)!;
+  const hasActiveFilters = disabledTags.size > 0;
 
   useEffect(() => {
     if (!("geolocation" in navigator)) return;
-
     const applyLocation = (lat: number, lng: number) => {
       const loc: [number, number] = [lat, lng];
       setUserLocation(loc);
@@ -41,15 +79,12 @@ const Index = () => {
       });
       setSelectedCity(closest.value);
     };
-
-    // Primeira tentativa: rápida, sem alta precisão (funciona melhor no mobile)
     navigator.geolocation.getCurrentPosition(
       (pos) => applyLocation(pos.coords.latitude, pos.coords.longitude),
       () => {
-        // Fallback: tenta com alta precisão se a rápida falhar
         navigator.geolocation.getCurrentPosition(
           (pos) => applyLocation(pos.coords.latitude, pos.coords.longitude),
-          () => {}, // silencia erro final
+          () => {},
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       },
@@ -61,11 +96,25 @@ const Index = () => {
 
   const filtered = useMemo(() => {
     const result = cityButecos.filter((b) => {
-      return !search ||
+      // Filtro de busca
+      const matchSearch = !search ||
         b.name.toLowerCase().includes(search.toLowerCase()) ||
         b.neighborhood.toLowerCase().includes(search.toLowerCase()) ||
         b.dish.toLowerCase().includes(search.toLowerCase());
+
+      // Filtro de tags: se há filtros ativos, some botecos sem tags ou com tags desligadas
+      let matchTags = true;
+      if (disabledTags.size > 0) {
+        if (!b.tags || b.tags.length === 0) {
+          matchTags = false;
+        } else {
+          matchTags = !b.tags.some((tag) => disabledTags.has(tag));
+        }
+      }
+
+      return matchSearch && matchTags;
     });
+
     if (userLocation) {
       result.sort((a, b) => {
         const distA = getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng);
@@ -74,7 +123,16 @@ const Index = () => {
       });
     }
     return result;
-  }, [search, userLocation, cityButecos]);
+  }, [search, disabledTags, userLocation, cityButecos]);
+
+  const toggleTag = (tag: string) => {
+    setDisabledTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+  };
 
   const handleCityChange = (city: City) => {
     setSelectedCity(city);
@@ -93,6 +151,30 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
+  const filterPanel = (
+    <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Filtrar por</span>
+        {hasActiveFilters && (
+          <button
+            onClick={() => setDisabledTags(new Set())}
+            style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}
+          >
+            Limpar filtros
+          </button>
+        )}
+      </div>
+      {ALL_TAGS.map((tag) => (
+        <TagToggle
+          key={tag}
+          tag={tag}
+          enabled={!disabledTags.has(tag)}
+          onToggle={() => toggleTag(tag)}
+        />
+      ))}
+    </div>
+  );
+
   const searchBar = (
     <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ position: "relative" }}>
@@ -102,22 +184,17 @@ const Index = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
-            width: "100%",
-            padding: "8px 8px 8px 34px",
-            borderRadius: 8,
-            border: "1px solid var(--border)",
-            background: "var(--muted)",
-            fontSize: 14,
-            color: "var(--foreground)",
-            outline: "none",
+            width: "100%", padding: "8px 8px 8px 34px", borderRadius: 8,
+            border: "1px solid var(--border)", background: "var(--muted)",
+            fontSize: 14, color: "var(--foreground)", outline: "none",
           }}
         />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted-foreground)" }}>
-        <Filter size={13} />
         <span style={{ fontSize: 12 }}>
           {filtered.length} butecos encontrados
           {userLocation && " · ordenados por distância"}
+          {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
         </span>
       </div>
     </div>
@@ -136,7 +213,12 @@ const Index = () => {
       ))}
       {filtered.length === 0 && (
         <div style={{ textAlign: "center", padding: "32px 0", color: "var(--muted-foreground)", fontSize: 14 }}>
-          Nenhum buteco encontrado
+          <p>Nenhum buteco encontrado</p>
+          {hasActiveFilters && (
+            <button onClick={() => setDisabledTags(new Set())} style={{ marginTop: 8, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", fontSize: 13 }}>
+              Limpar filtros
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -169,14 +251,20 @@ const Index = () => {
             onClick={() => { setSelectedButeco(null); setMobileListOpen(true); }}
             style={{
               position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)",
-              zIndex: 1000, background: "var(--primary)", color: "#fff",
+              zIndex: 1000, background: hasActiveFilters ? "#c43d0f" : "var(--primary)", color: "#fff",
               border: "none", borderRadius: 999, padding: "12px 20px",
               fontSize: 15, fontWeight: 600, cursor: "pointer",
               display: "flex", alignItems: "center", gap: 8,
               boxShadow: "0 4px 20px rgba(232,82,26,0.4)",
             }}
           >
-            <List size={20} /> Ver lista ({filtered.length})
+            <SlidersHorizontal size={20} />
+            Busca e Filtros
+            {hasActiveFilters && (
+              <span style={{ background: "#fff", color: "#c43d0f", borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {disabledTags.size}
+              </span>
+            )}
           </button>
         </div>
 
@@ -189,19 +277,21 @@ const Index = () => {
             <div
               style={{
                 background: "var(--card)", borderRadius: "20px 20px 0 0",
-                height: "75vh", display: "flex", flexDirection: "column",
-                overflow: "hidden",
+                height: "85vh", display: "flex", flexDirection: "column", overflow: "hidden",
               }}
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ padding: "16px 16px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2 style={{ fontWeight: 700, fontSize: 16 }}>Butecos Participantes</h2>
+                <h2 style={{ fontWeight: 700, fontSize: 16 }}>Busca e Filtros</h2>
                 <button onClick={() => setMobileListOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
                   <X size={20} color="var(--muted-foreground)" />
                 </button>
               </div>
               {searchBar}
-              {butecoList}
+              <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
+                {filterPanel}
+                {butecoList}
+              </div>
             </div>
           </div>
         )}
@@ -220,7 +310,10 @@ const Index = () => {
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
           {searchBar}
-          {butecoList}
+          <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
+            {filterPanel}
+            {butecoList}
+          </div>
         </aside>
         <main style={{ flex: 1, position: "relative" }}>
           <ButecoMap
