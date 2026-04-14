@@ -148,10 +148,16 @@ export default function ButecoMap({ butecos, selectedButeco, onSelectButeco, use
         >
           {buteco.tags && buteco.tags.length > 0 && (
             <Tooltip direction="top" offset={[0, -16]} opacity={1} className="buteco-tag-tooltip">
-              <div style={{ display: "flex", gap: 4, alignItems: "center", padding: "2px 0" }}>
-                {buteco.tags.map((tag) => TAG_MAP[tag]?.emoji).filter(Boolean).map((emoji, i) => (
-                  <span key={i} style={{ fontSize: 16 }}>{emoji}</span>
-                ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, padding: "2px 0" }}>
+                {buteco.tags.map((tag) => {
+                  const t = TAG_MAP[tag];
+                  if (!t) return null;
+                  return (
+                    <span key={tag} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: "#1a1208" }}>
+                      <span style={{ fontSize: 14 }}>{t.emoji}</span> {t.label}
+                    </span>
+                  );
+                })}
               </div>
             </Tooltip>
           )}
