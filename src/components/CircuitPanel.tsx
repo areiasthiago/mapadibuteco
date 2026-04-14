@@ -77,11 +77,25 @@ interface CircuitPanelProps {
 
 export default function CircuitPanel({ anchor, allButecos, onClose }: CircuitPanelProps) {
   const [openIndex, setOpenIndex] = useState<number>(0);
-  const nearby = allButecos
-    .filter((b) => b.id !== anchor.id)
-    .map((b) => ({ buteco: b, dist: getDistanceKm(anchor.lat, anchor.lng, b.lat, b.lng) }))
-    .sort((a, b) => a.dist - b.dist)
-    .slice(0, 4);
+
+  const MAX_CIRCUIT_KM = 5;
+
+  const nearby = (() => {
+    const sorted = allButecos
+      .filter((b) => b.id !== anchor.id)
+      .map((b) => ({ buteco: b, dist: getDistanceKm(anchor.lat, anchor.lng, b.lat, b.lng) }))
+      .sort((a, b) => a.dist - b.dist);
+
+    const result = [];
+    let accumulated = 0;
+    for (const item of sorted) {
+      if (accumulated + item.dist > MAX_CIRCUIT_KM) break;
+      accumulated += item.dist;
+      result.push(item);
+      if (result.length >= 4) break;
+    }
+    return result;
+  })();
 
   const totalDist = nearby.reduce((sum, n) => sum + n.dist, 0);
   const estimatedTime = Math.round(nearby.length * 40 + (totalDist / 4) * 60);
