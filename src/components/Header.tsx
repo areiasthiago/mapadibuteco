@@ -15,7 +15,7 @@ export default function Header({ selectedCity, onCityChange, butecoCount }: Head
         <div className="flex items-center gap-2">
           <Beer size={28} />
           <div>
-            <h1 className="font-extrabold text-xl leading-none tracking-tight">Mapa do Buteco</h1>
+            <h1 className="font-extrabold text-xl leading-none tracking-tight">Mapa di Buteco</h1>
             <p className="text-xs opacity-80">{butecoCount} Butecos Participantes 2026</p>
           </div>
         </div>

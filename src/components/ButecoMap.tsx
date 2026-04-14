@@ -112,8 +112,8 @@ interface ButecoMapProps {
 export default function ButecoMap({ butecos, selectedButeco, onSelectButeco, userLocation, cityCenter, cityZoom }: ButecoMapProps) {
   return (
     <MapContainer
-      center={userLocation || cityCenter}
-      zoom={userLocation ? 14 : cityZoom}
+      center={cityCenter}
+      zoom={cityZoom}
       style={{ width: "100%", height: "100%", minHeight: 400 }}
     >
       <TileLayer
