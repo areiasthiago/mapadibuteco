@@ -71,9 +71,10 @@ function StopCard({ buteco, index, isOpen, onToggle }: { buteco: Buteco; index: 
                     <span key={tag} style={{
                       display: "inline-flex", alignItems: "center", gap: 4,
                       padding: "4px 10px", borderRadius: 999,
-                      background: "var(--primary)", 
+                      background: "rgba(232,82,26,0.12)",
+                      border: "1.5px solid rgba(232,82,26,0.35)",
                       fontSize: 12, fontWeight: 700,
-                      color: "#fff",
+                      color: "#c43d0f",
                     }}>
                       {t.emoji} {t.label}
                     </span>
