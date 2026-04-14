@@ -21,7 +21,6 @@ function StopCard({ buteco, index, isOpen, onToggle }: { buteco: Buteco; index: 
   return (
     <div style={{
       borderRadius: 10,
-      overflow: "hidden",
       background: isAnchor ? "rgba(232,82,26,0.05)" : "transparent",
       border: isAnchor ? "1px solid rgba(232,82,26,0.2)" : "1px solid transparent",
     }}>
