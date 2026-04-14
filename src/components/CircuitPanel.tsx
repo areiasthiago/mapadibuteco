@@ -77,7 +77,7 @@ interface CircuitPanelProps {
 }
 
 export default function CircuitPanel({ anchor, allButecos, onClose }: CircuitPanelProps) {
-  const [openIndex, setOpenIndex] = useState<number>(0);
+  const [openIndex, setOpenIndex] = useState<number>(-1);
   const nearby = allButecos
     .filter((b) => b.id !== anchor.id)
     .map((b) => ({ buteco: b, dist: getDistanceKm(anchor.lat, anchor.lng, b.lat, b.lng) }))

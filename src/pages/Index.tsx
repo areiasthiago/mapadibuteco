@@ -31,7 +31,17 @@ const Index = () => {
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation([pos.coords.latitude, pos.coords.longitude]),
+        (pos) => {
+          const loc: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+          setUserLocation(loc);
+          // Detecta cidade mais próxima automaticamente
+          const closest = cities.reduce((prev, curr) => {
+            const distPrev = getDistanceKm(loc[0], loc[1], prev.center[0], prev.center[1]);
+            const distCurr = getDistanceKm(loc[0], loc[1], curr.center[0], curr.center[1]);
+            return distCurr < distPrev ? curr : prev;
+          });
+          setSelectedCity(closest.value);
+        },
         () => {},
         { enableHighAccuracy: true, timeout: 8000 }
       );
@@ -214,7 +224,7 @@ const Index = () => {
             cityZoom={cityConfig.zoom}
           />
           {selectedButeco && (
-            <div style={{ position: "absolute", bottom: 16, left: 16, right: 16, maxWidth: 420, zIndex: 1000 }}>
+            <div style={{ position: "absolute", bottom: 16, left: 16, width: 400, zIndex: 1000 }}>
               <CircuitPanel
                 anchor={selectedButeco}
                 allButecos={cityButecos}
