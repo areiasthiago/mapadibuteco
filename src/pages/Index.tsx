@@ -18,10 +18,19 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+const FILTERS = [
+  { tag: "fritura",       label: "🍟 Fritura" },
+  { tag: "frutos-do-mar", label: "🦐 Frutos do Mar" },
+  { tag: "carne-bovina",  label: "🥩 Carne" },
+  { tag: "porco",         label: "🐷 Porco" },
+  { tag: "vegetariano",   label: "🥦 Vegetariano" },
+];
+
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState<City>("Rio de Janeiro");
   const [selectedButeco, setSelectedButeco] = useState<Buteco | null>(null);
   const [search, setSearch] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
   const [mobileListOpen, setMobileListOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const isMobile = useIsMobile();
@@ -29,34 +38,45 @@ const Index = () => {
   const cityConfig = cities.find((c) => c.value === selectedCity)!;
 
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const loc: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-          setUserLocation(loc);
-          // Detecta cidade mais próxima automaticamente
-          const closest = cities.reduce((prev, curr) => {
-            const distPrev = getDistanceKm(loc[0], loc[1], prev.center[0], prev.center[1]);
-            const distCurr = getDistanceKm(loc[0], loc[1], curr.center[0], curr.center[1]);
-            return distCurr < distPrev ? curr : prev;
-          });
-          setSelectedCity(closest.value);
-        },
-        () => {},
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
-    }
+    if (!("geolocation" in navigator)) return;
+
+    const applyLocation = (lat: number, lng: number) => {
+      const loc: [number, number] = [lat, lng];
+      setUserLocation(loc);
+      const closest = cities.reduce((prev, curr) => {
+        const distPrev = getDistanceKm(loc[0], loc[1], prev.center[0], prev.center[1]);
+        const distCurr = getDistanceKm(loc[0], loc[1], curr.center[0], curr.center[1]);
+        return distCurr < distPrev ? curr : prev;
+      });
+      setSelectedCity(closest.value);
+    };
+
+    // Primeira tentativa: rápida, sem alta precisão (funciona melhor no mobile)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => applyLocation(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        // Fallback: tenta com alta precisão se a rápida falhar
+        navigator.geolocation.getCurrentPosition(
+          (pos) => applyLocation(pos.coords.latitude, pos.coords.longitude),
+          () => {}, // silencia erro final
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+    );
   }, []);
 
   const cityButecos = useMemo(() => butecos.filter((b) => b.city === selectedCity), [selectedCity]);
 
   const filtered = useMemo(() => {
-    const result = cityButecos.filter((b) =>
-      !search ||
-      b.name.toLowerCase().includes(search.toLowerCase()) ||
-      b.neighborhood.toLowerCase().includes(search.toLowerCase()) ||
-      b.dish.toLowerCase().includes(search.toLowerCase())
-    );
+    const result = cityButecos.filter((b) => {
+      const matchSearch = !search ||
+        b.name.toLowerCase().includes(search.toLowerCase()) ||
+        b.neighborhood.toLowerCase().includes(search.toLowerCase()) ||
+        b.dish.toLowerCase().includes(search.toLowerCase());
+      const matchTag = !activeTag || (b.tags && b.tags.includes(activeTag));
+      return matchSearch && matchTag;
+    });
     if (userLocation) {
       result.sort((a, b) => {
         const distA = getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng);
@@ -65,12 +85,13 @@ const Index = () => {
       });
     }
     return result;
-  }, [search, userLocation, cityButecos]);
+  }, [search, activeTag, userLocation, cityButecos]);
 
   const handleCityChange = (city: City) => {
     setSelectedCity(city);
     setSelectedButeco(null);
     setSearch("");
+    setActiveTag(null);
   };
 
   const handleSelectButeco = (buteco: Buteco) => {
@@ -84,8 +105,37 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
+  const filterChips = (
+    <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
+      {FILTERS.map((f) => {
+        const isActive = activeTag === f.tag;
+        return (
+          <button
+            key={f.tag}
+            onClick={() => setActiveTag(isActive ? null : f.tag)}
+            style={{
+              flexShrink: 0,
+              padding: "5px 10px",
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              border: isActive ? "2px solid var(--primary)" : "2px solid var(--border)",
+              background: isActive ? "var(--primary)" : "var(--card)",
+              color: isActive ? "#fff" : "var(--muted-foreground)",
+              transition: "all 0.15s ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {f.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   const searchBar = (
-    <div style={{ padding: "12px", borderBottom: "1px solid var(--border)" }}>
+    <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ position: "relative" }}>
         <Search size={16} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
         <input
@@ -104,12 +154,19 @@ const Index = () => {
           }}
         />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, color: "var(--muted-foreground)" }}>
+      {filterChips}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted-foreground)" }}>
         <Filter size={13} />
         <span style={{ fontSize: 12 }}>
           {filtered.length} butecos encontrados
           {userLocation && " · ordenados por distância"}
+          {activeTag && ` · ${FILTERS.find(f => f.tag === activeTag)?.label}`}
         </span>
+        {activeTag && (
+          <button onClick={() => setActiveTag(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", display: "flex", padding: 2 }}>
+            <X size={14} color="var(--primary)" />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -171,7 +228,6 @@ const Index = () => {
           </button>
         </div>
 
-        {/* Mobile sheet */}
         {mobileListOpen && (
           <div style={{
             position: "fixed", inset: 0, zIndex: 2000,
