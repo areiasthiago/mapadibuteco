@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --primary: #e8521a;
+  --primary-foreground: #fff;
+  --background: #faf8f5;
+  --foreground: #1a1208;
+  --card: #ffffff;
+  --muted: #f0ebe3;
+  --muted-foreground: #8a7a6a;
+  --border: #e8ddd0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; width: 100%; }
+
+body {
+  font-family: 'Nunito Sans', system-ui, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.leaflet-container { background: #e8e0d5; font-family: inherit; }
+.custom-marker div { transition: transform 0.15s ease; }
+.custom-marker div:hover { transform: scale(1.2); }
