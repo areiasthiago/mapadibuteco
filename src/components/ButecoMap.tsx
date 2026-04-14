@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import L from "leaflet";
 import type { Buteco } from "@/data/butecos";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -73,21 +73,27 @@ function FitBounds({ userLocation, cityCenter, cityZoom }: {
   cityZoom: number;
 }) {
   const map = useMap();
-  const [hasFittedUser, setHasFittedUser] = useState(false);
+  const fittedToUser = useRef(false);
+  const prevCityCenter = useRef(cityCenter);
 
+  // Quando localização do usuário chegar, voa pra ela (só uma vez)
   useEffect(() => {
-    if (userLocation && !hasFittedUser) {
+    if (userLocation && !fittedToUser.current) {
+      fittedToUser.current = true;
       map.flyTo(userLocation, 14, { duration: 1.2 });
-      setHasFittedUser(true);
     }
-  }, [userLocation, hasFittedUser, map]);
+  }, [userLocation, map]);
 
+  // Quando cidade muda manualmente (usuário trocou no select), voa pro centro
   useEffect(() => {
-    // Só voa para o centro da cidade se ainda não centralizou no usuário
-    if (!hasFittedUser) {
+    const [prevLat, prevLng] = prevCityCenter.current;
+    const [newLat, newLng] = cityCenter;
+    const changed = prevLat !== newLat || prevLng !== newLng;
+    if (changed) {
+      prevCityCenter.current = cityCenter;
       map.flyTo(cityCenter, cityZoom, { duration: 1.2 });
     }
-  }, [cityCenter, cityZoom, map, hasFittedUser]);
+  }, [cityCenter, cityZoom, map]);
 
   return null;
 }

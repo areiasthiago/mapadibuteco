@@ -2,6 +2,8 @@ import { Beer } from "lucide-react";
 import { cities } from "@/data/butecos";
 import type { City } from "@/data/butecos";
 
+const version = __APP_VERSION__;
+
 interface HeaderProps {
   selectedCity: City;
   onCityChange: (city: City) => void;
@@ -16,7 +18,7 @@ export default function Header({ selectedCity, onCityChange, butecoCount }: Head
           <Beer size={28} />
           <div>
             <h1 className="font-extrabold text-xl leading-none tracking-tight">Mapa di Buteco</h1>
-            <p className="text-xs opacity-80">{butecoCount} Butecos Participantes · <span className="opacity-70">v1.0.1 beta</span></p>
+            <p className="text-xs opacity-80">{butecoCount} Butecos Participantes · <span className="opacity-70">v{version} beta</span></p>
           </div>
         </div>
         <select
