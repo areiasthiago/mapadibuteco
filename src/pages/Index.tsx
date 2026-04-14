@@ -18,19 +18,10 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const FILTERS = [
-  { tag: "fritura",       label: "🍟 Fritura" },
-  { tag: "frutos-do-mar", label: "🦐 Frutos do Mar" },
-  { tag: "carne-bovina",  label: "🥩 Carne" },
-  { tag: "porco",         label: "🐷 Porco" },
-  { tag: "vegetariano",   label: "🥦 Vegetariano" },
-];
-
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState<City>("Rio de Janeiro");
   const [selectedButeco, setSelectedButeco] = useState<Buteco | null>(null);
   const [search, setSearch] = useState("");
-  const [activeTag, setActiveTag] = useState<string | null>(null);
   const [mobileListOpen, setMobileListOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const isMobile = useIsMobile();
@@ -70,12 +61,10 @@ const Index = () => {
 
   const filtered = useMemo(() => {
     const result = cityButecos.filter((b) => {
-      const matchSearch = !search ||
+      return !search ||
         b.name.toLowerCase().includes(search.toLowerCase()) ||
         b.neighborhood.toLowerCase().includes(search.toLowerCase()) ||
         b.dish.toLowerCase().includes(search.toLowerCase());
-      const matchTag = !activeTag || (b.tags && b.tags.includes(activeTag));
-      return matchSearch && matchTag;
     });
     if (userLocation) {
       result.sort((a, b) => {
@@ -85,13 +74,12 @@ const Index = () => {
       });
     }
     return result;
-  }, [search, activeTag, userLocation, cityButecos]);
+  }, [search, userLocation, cityButecos]);
 
   const handleCityChange = (city: City) => {
     setSelectedCity(city);
     setSelectedButeco(null);
     setSearch("");
-    setActiveTag(null);
   };
 
   const handleSelectButeco = (buteco: Buteco) => {
@@ -104,35 +92,6 @@ const Index = () => {
     const d = getDistanceKm(userLocation[0], userLocation[1], buteco.lat, buteco.lng);
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
-
-  const filterChips = (
-    <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-      {FILTERS.map((f) => {
-        const isActive = activeTag === f.tag;
-        return (
-          <button
-            key={f.tag}
-            onClick={() => setActiveTag(isActive ? null : f.tag)}
-            style={{
-              flexShrink: 0,
-              padding: "5px 10px",
-              borderRadius: 999,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              border: isActive ? "2px solid var(--primary)" : "2px solid var(--border)",
-              background: isActive ? "var(--primary)" : "var(--card)",
-              color: isActive ? "#fff" : "var(--muted-foreground)",
-              transition: "all 0.15s ease",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {f.label}
-          </button>
-        );
-      })}
-    </div>
-  );
 
   const searchBar = (
     <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
@@ -154,19 +113,12 @@ const Index = () => {
           }}
         />
       </div>
-      {filterChips}
       <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted-foreground)" }}>
         <Filter size={13} />
         <span style={{ fontSize: 12 }}>
           {filtered.length} butecos encontrados
           {userLocation && " · ordenados por distância"}
-          {activeTag && ` · ${FILTERS.find(f => f.tag === activeTag)?.label}`}
         </span>
-        {activeTag && (
-          <button onClick={() => setActiveTag(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", display: "flex", padding: 2 }}>
-            <X size={14} color="var(--primary)" />
-          </button>
-        )}
       </div>
     </div>
   );
