@@ -5,8 +5,8 @@ import ButecoCard from "@/components/ButecoCard";
 import CircuitPanel from "@/components/CircuitPanel";
 import { butecos, cities } from "@/data/butecos";
 import type { Buteco, City } from "@/data/butecos";
-import { TAG_MAP } from "@/lib/tags";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { TAG_MAP, TAG_CATEGORIES } from "@/lib/tags";
+import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
@@ -62,6 +62,7 @@ const Index = () => {
   const [mobileListOpen, setMobileListOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [disabledTags, setDisabledTags] = useState<Set<string>>(new Set());
+  const [openPanel, setOpenPanel] = useState<"lista" | "filtros">("lista");
   const isMobile = useIsMobile();
 
   const cityConfig = cities.find((c) => c.value === selectedCity)!;
@@ -151,30 +152,6 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
-  const filterPanel = (
-    <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Filtrar por</span>
-        {hasActiveFilters && (
-          <button
-            onClick={() => setDisabledTags(new Set())}
-            style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}
-          >
-            Limpar filtros
-          </button>
-        )}
-      </div>
-      {ALL_TAGS.map((tag) => (
-        <TagToggle
-          key={tag}
-          tag={tag}
-          enabled={!disabledTags.has(tag)}
-          onToggle={() => toggleTag(tag)}
-        />
-      ))}
-    </div>
-  );
-
   const searchBar = (
     <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ position: "relative" }}>
@@ -221,6 +198,79 @@ const Index = () => {
           )}
         </div>
       )}
+    </div>
+  );
+
+  const filterPanel = (
+    <div>
+      <button
+        onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "12px 16px", background: "var(--background)", border: "none",
+          borderBottom: "1px solid var(--border)", cursor: "pointer",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <SlidersHorizontal size={14} color="var(--muted-foreground)" />
+          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>Filtros</span>
+          {hasActiveFilters && (
+            <span style={{
+              background: "var(--primary)", color: "#fff",
+              borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>{disabledTags.size}</span>
+          )}
+        </div>
+        <ChevronDown size={16} color="var(--muted-foreground)" style={{
+          transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
+          transition: "transform 0.2s ease",
+        }} />
+      </button>
+      {openPanel === "filtros" && (
+        <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+          {hasActiveFilters && (
+            <button
+              onClick={() => setDisabledTags(new Set())}
+              style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", marginBottom: 8, padding: 0 }}
+            >
+              Limpar todos os filtros
+            </button>
+          )}
+          {TAG_CATEGORIES.map((cat) => (
+            <div key={cat.label} style={{ marginBottom: 16 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                {cat.label}
+              </p>
+              {cat.tags.map((tag) => (
+                <TagToggle key={tag} tag={tag} enabled={!disabledTags.has(tag)} onToggle={() => toggleTag(tag)} />
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const listPanel = (
+    <div>
+      <button
+        onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "12px 16px", background: "var(--background)", border: "none",
+          borderBottom: "1px solid var(--border)", cursor: "pointer",
+        }}
+      >
+        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
+          Butecos ({filtered.length})
+        </span>
+        <ChevronDown size={16} color="var(--muted-foreground)" style={{
+          transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
+          transition: "transform 0.2s ease",
+        }} />
+      </button>
+      {openPanel === "lista" && butecoList}
     </div>
   );
 
@@ -290,7 +340,7 @@ const Index = () => {
               {searchBar}
               <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
                 {filterPanel}
-                {butecoList}
+                {listPanel}
               </div>
             </div>
           </div>
@@ -312,7 +362,7 @@ const Index = () => {
           {searchBar}
           <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
             {filterPanel}
-            {butecoList}
+            {listPanel}
           </div>
         </aside>
         <main style={{ flex: 1, position: "relative" }}>

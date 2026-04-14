@@ -12,3 +12,14 @@ export const TAG_MAP: Record<string, { emoji: string; label: string }> = {
   "cozido":         { emoji: "🫕", label: "Cozido" },
   "gratinado":      { emoji: "🧀", label: "Gratinado" },
 };
+
+export const TAG_CATEGORIES = [
+  {
+    label: "Proteína",
+    tags: ["carne-bovina", "porco", "frango", "peixe", "frutos-do-mar", "miudos", "vegetariano", "vegano"],
+  },
+  {
+    label: "Preparo",
+    tags: ["frito", "assado", "cozido", "gratinado"],
+  },
+];
