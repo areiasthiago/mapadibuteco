@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ selectedCity, onCityChange, butecoCount }: HeaderProps) {
   return (
-    <header style={{ background: "var(--primary)", color: "var(--primary-foreground)" }} className="px-4 py-3 shadow-lg">
+    <header style={{ background: "var(--primary)", color: "var(--primary-foreground)", padding: "14px 24px" }} className="shadow-lg">
       <div className="flex items-center justify-between gap-3 max-w-screen-2xl mx-auto">
         <div className="flex items-center gap-2">
           <Beer size={28} />

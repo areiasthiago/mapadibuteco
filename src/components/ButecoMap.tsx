@@ -83,8 +83,11 @@ function FitBounds({ userLocation, cityCenter, cityZoom }: {
   }, [userLocation, hasFittedUser, map]);
 
   useEffect(() => {
-    map.flyTo(cityCenter, cityZoom, { duration: 1.2 });
-  }, [cityCenter, cityZoom, map]);
+    // Só voa para o centro da cidade se ainda não centralizou no usuário
+    if (!hasFittedUser) {
+      map.flyTo(cityCenter, cityZoom, { duration: 1.2 });
+    }
+  }, [cityCenter, cityZoom, map, hasFittedUser]);
 
   return null;
 }

@@ -53,7 +53,7 @@ function StopCard({ buteco, index, isOpen, onToggle }: { buteco: Buteco; index: 
           <div style={{ paddingLeft: 38, display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted-foreground)" }}>
               <MapPin size={14} />
-              <span style={{ fontSize: 12 }}>{buteco.neighborhood}</span>
+              <span style={{ fontSize: 12 }}>{buteco.address}</span>
             </div>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
               <UtensilsCrossed size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
@@ -77,7 +77,7 @@ interface CircuitPanelProps {
 }
 
 export default function CircuitPanel({ anchor, allButecos, onClose }: CircuitPanelProps) {
-  const [openIndex, setOpenIndex] = useState<number>(-1);
+  const [openIndex, setOpenIndex] = useState<number>(0);
   const nearby = allButecos
     .filter((b) => b.id !== anchor.id)
     .map((b) => ({ buteco: b, dist: getDistanceKm(anchor.lat, anchor.lng, b.lat, b.lng) }))
