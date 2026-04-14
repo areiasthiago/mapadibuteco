@@ -63,16 +63,17 @@ function StopCard({ buteco, index, isOpen, onToggle }: { buteco: Buteco; index: 
               </div>
             </div>
             {buteco.tags && buteco.tags.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 2 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
                 {buteco.tags.map((tag) => {
                   const t = TAG_MAP[tag];
                   if (!t) return null;
                   return (
                     <span key={tag} style={{
-                      display: "inline-flex", alignItems: "center", gap: 3,
-                      padding: "2px 8px", borderRadius: 999,
-                      background: "var(--muted)", fontSize: 11, fontWeight: 600,
-                      color: "var(--muted-foreground)",
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      padding: "4px 10px", borderRadius: 999,
+                      background: "var(--primary)", 
+                      fontSize: 12, fontWeight: 700,
+                      color: "#fff",
                     }}>
                       {t.emoji} {t.label}
                     </span>
