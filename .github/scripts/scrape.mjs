@@ -72,23 +72,24 @@ function extractListPage(html) {
 }
 
 function extractDetailPage(html) {
-  // Prato
-  const dishMatch = html.match(/class="[^"]*nome[_-]?prato[^"]*"[^>]*>([^<]+)/i)
-    || html.match(/<h3[^>]*class="[^"]*prato[^"]*"[^>]*>([^<]+)/i)
-    || html.match(/class="section-simple-title"[^>]*>([^<]+)/i);
-  const dish = dishMatch ? dishMatch[1].trim() : "";
-
-  // Descrição
-  const descMatch = html.match(/class="[^"]*descri[^"]*"[^>]*>([\s\S]*?)<\/(?:p|div)>/i);
-  const dishDescription = descMatch
-    ? descMatch[1].replace(/<[^>]+>/g, "").trim()
-    : "Prato concorrente do Comida di Buteco 2026.";
-
-  // Endereço completo da página individual (fallback)
-  // Estrutura: <div class="section-text">...<b>Endereço: </b>ENDEREÇO...
+  // Estrutura real: <p><b>Endereço: </b>endereço aqui</p>
   let address = "";
-  const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<\n]+)/i);
+  const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<]+)/i);
   if (addrMatch) address = addrMatch[1].trim();
+
+  // Prato: <p><b>Nome do Prato</b> descrição...</p> — primeiro <b> da section-text
+  // O nome do prato é o primeiro <b> antes de "Endereço"
+  const sectionMatch = html.match(/class="section-text"[^>]*>([\s\S]*?)<\/div>/i);
+  let dish = "";
+  let dishDescription = "Prato concorrente do Comida di Buteco 2026.";
+  if (sectionMatch) {
+    const section = sectionMatch[1];
+    const firstP = section.match(/<p[^>]*><b>([^<]+)<\/b>\s*([\s\S]*?)<\/p>/i);
+    if (firstP) {
+      dish = firstP[1].trim();
+      dishDescription = firstP[2].replace(/<[^>]+>/g, "").trim() || dishDescription;
+    }
+  }
 
   return { dish, dishDescription, address };
 }
