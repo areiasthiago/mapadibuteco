@@ -118,6 +118,15 @@ async function main() {
 
     try {
       const html = await fetchPage(url);
+
+      // Debug: salva HTML da primeira página para inspecionar estrutura
+      if (page === 1) {
+        writeFileSync("debug-page1.html", html.slice(0, 50000));
+        console.log(`  HTML salvo (${html.length} chars)`);
+        console.log(`  Tem <article>: ${html.includes("<article")}`);
+        console.log(`  Tem buteco: ${html.toLowerCase().includes("buteco")}`);
+        console.log(`  Tem entry-title: ${html.includes("entry-title")}`);
+      }
       const butecos = extractFromPage(html);
       console.log(`  ${butecos.length} butecos encontrados`);
 
@@ -154,7 +163,13 @@ async function main() {
         writeFileSync(OUTPUT, JSON.stringify(results, null, 2));
       }
 
-      await sleep(2000); // pausa entre páginas
+      await sleep(2000);
+
+      // Debug: para após primeira página
+      if (page === 1) {
+        console.log("\n⚠️ Modo debug: parando após página 1. Verifique debug-page1.html");
+        break;
+      }
     } catch (err) {
       console.error(`  ✗ Erro: ${err.message}`);
       await sleep(5000); // pausa maior em caso de erro
