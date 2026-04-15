@@ -26,11 +26,25 @@ async function fetchHtml(url) {
   return res.text();
 }
 
+function decodeHtml(str) {
+  return str
+    .replace(/&#8211;/g, "-")
+    .replace(/&#8212;/g, "-")
+    .replace(/&amp;/g, "&")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&ndash;/g, "-")
+    .replace(/&mdash;/g, "-")
+    .trim();
+}
+
 function parseAddress(address) {
-  // Formato: "Rua Foo, 123 | Bairro, Cidade - UF"
+  // Normaliza travessão e entidades HTML
+  const normalized = decodeHtml(address)
+    .replace(/\s*[–—]\s*/g, " - "); // travessão → hífen padrão
+
   let neighborhood = "", city = "", state = "";
-  if (address.includes("|")) {
-    const after = address.split("|")[1]?.trim() || "";
+  if (normalized.includes("|")) {
+    const after = normalized.split("|")[1]?.trim() || "";
     const parts = after.split(",");
     neighborhood = parts[0]?.trim() || "";
     const cityState = parts.slice(1).join(",").trim();
@@ -151,6 +165,9 @@ async function main() {
 
         // Usa endereço do Maps se tiver bairro (contém "|"), senão usa o da página individual
         const finalAddress = item.address.includes("|") ? item.address : (detailAddress || item.address);
+        if (!item.address.includes("|")) {
+          console.log(`    [fallback] maps="${item.address}" detail="${detailAddress}"`);
+        }
         const { neighborhood, city, state } = parseAddress(finalAddress);
 
         const coords = finalAddress
