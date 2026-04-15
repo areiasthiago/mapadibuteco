@@ -98,6 +98,11 @@ function extractDetailPage(html) {
   const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<]+)/i);
   if (addrMatch) address = addrMatch[1].trim();
 
+  // Debug: loga o <p> completo onde ficaria o endereço
+  const addrPMatch = html.match(/<p[^>]*>[^<]*<b>Endere[çc]o[^<]*<\/b>[^<]*<\/p>/i);
+  console.log(`    [addr-p] ${addrPMatch ? addrPMatch[0] : "NÃO ENCONTRADO"}`);
+  console.log(`    [addr-extracted] "${address}"`);
+
   // Prato: <p><b>Nome do Prato</b> descrição...</p> — primeiro <b> da section-text
   // O nome do prato é o primeiro <b> antes de "Endereço"
   const sectionMatch = html.match(/class="section-text"[^>]*>([\s\S]*?)<\/div>/i);
