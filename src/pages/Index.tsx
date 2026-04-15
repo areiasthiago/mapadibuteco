@@ -6,7 +6,7 @@ import CircuitPanel from "@/components/CircuitPanel";
 import { butecos, cities } from "@/data/butecos";
 import type { Buteco, City } from "@/data/butecos";
 import { TAG_MAP, TAG_CATEGORIES } from "@/lib/tags";
-import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronDown, List } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
@@ -207,13 +207,14 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: "var(--background)", border: "none",
-          borderBottom: "1px solid var(--border)", cursor: "pointer",
+          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.06)" : "var(--background)",
+          border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
+          transition: "background 0.2s ease",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SlidersHorizontal size={14} color="var(--muted-foreground)" />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>Filtros</span>
+          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "var(--primary)" : "var(--muted-foreground)"} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "filtros" ? "var(--primary)" : "var(--foreground)" }}>Filtros</span>
           {hasActiveFilters && (
             <span style={{
               background: "var(--primary)", color: "#fff",
@@ -222,7 +223,7 @@ const Index = () => {
             }}>{disabledTags.size}</span>
           )}
         </div>
-        <ChevronDown size={16} color="var(--muted-foreground)" style={{
+        <ChevronDown size={16} color={openPanel === "filtros" ? "var(--primary)" : "var(--muted-foreground)"} style={{
           transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
@@ -253,24 +254,33 @@ const Index = () => {
   );
 
   const listPanel = (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
       <button
         onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: "var(--background)", border: "none",
-          borderBottom: "1px solid var(--border)", cursor: "pointer",
+          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.06)" : "var(--background)",
+          border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
+          transition: "background 0.2s ease", flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
-          Butecos ({filtered.length})
-        </span>
-        <ChevronDown size={16} color="var(--muted-foreground)" style={{
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <List size={14} color={openPanel === "lista" ? "var(--primary)" : "var(--muted-foreground)"} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "lista" ? "var(--primary)" : "var(--foreground)" }}>
+            Butecos ({filtered.length})
+          </span>
+        </div>
+        <ChevronDown size={16} color={openPanel === "lista" ? "var(--primary)" : "var(--muted-foreground)"} style={{
           transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
       </button>
-      {openPanel === "lista" && butecoList}
+      {openPanel === "lista" && (
+        <>
+          {searchBar}
+          {butecoList}
+        </>
+      )}
     </div>
   );
 
@@ -337,7 +347,6 @@ const Index = () => {
                   <X size={20} color="var(--muted-foreground)" />
                 </button>
               </div>
-              {searchBar}
               <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
                 {filterPanel}
                 {listPanel}
@@ -359,7 +368,6 @@ const Index = () => {
           borderRight: "1px solid var(--border)",
           display: "flex", flexDirection: "column", overflow: "hidden",
         }}>
-          {searchBar}
           <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
             {filterPanel}
             {listPanel}
