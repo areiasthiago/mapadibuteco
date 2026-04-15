@@ -213,7 +213,7 @@ const Index = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "var(--primary)" : "var(--muted-foreground)"} />
+          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "var(--primary)" : "var(--foreground)"} />
           <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "filtros" ? "var(--primary)" : "var(--foreground)" }}>Filtros</span>
           {hasActiveFilters && (
             <span style={{
@@ -223,7 +223,7 @@ const Index = () => {
             }}>{disabledTags.size}</span>
           )}
         </div>
-        <ChevronDown size={16} color={openPanel === "filtros" ? "var(--primary)" : "var(--muted-foreground)"} style={{
+        <ChevronDown size={16} color={openPanel === "filtros" ? "var(--primary)" : "var(--foreground)"} style={{
           transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
@@ -265,12 +265,12 @@ const Index = () => {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <List size={14} color={openPanel === "lista" ? "var(--primary)" : "var(--muted-foreground)"} />
+          <List size={14} color={openPanel === "lista" ? "var(--primary)" : "var(--foreground)"} />
           <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "lista" ? "var(--primary)" : "var(--foreground)" }}>
             Butecos ({filtered.length})
           </span>
         </div>
-        <ChevronDown size={16} color={openPanel === "lista" ? "var(--primary)" : "var(--muted-foreground)"} style={{
+        <ChevronDown size={16} color={openPanel === "lista" ? "var(--primary)" : "var(--foreground)"} style={{
           transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
