@@ -9,7 +9,7 @@ import { writeFileSync, readFileSync, existsSync } from "fs";
 const BASE_URL = "https://comidadibuteco.com.br/butecos";
 const GEOCODE_URL = "https://nominatim.openstreetmap.org/search";
 const OUTPUT = "src/data/butecos-scraped.json";
-const TOTAL_PAGES = 1; // DEBUG: remover depois
+const TOTAL_PAGES = 92;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -97,11 +97,6 @@ function extractDetailPage(html) {
   const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<]+)/i);
   if (addrMatch) address = decodeHtml(addrMatch[1].trim());
 
-  // Debug: loga o <p> completo onde ficaria o endereço
-  const addrPMatch = html.match(/<p[^>]*>[^<]*<b>Endere[çc]o[^<]*<\/b>[^<]*<\/p>/i);
-  console.log(`    [addr-p] ${addrPMatch ? addrPMatch[0] : "NÃO ENCONTRADO"}`);
-  console.log(`    [addr-extracted] "${address}"`);
-
   // Prato: <p><b>Nome do Prato</b> descrição...</p> — primeiro <b> da section-text
   // O nome do prato é o primeiro <b> antes de "Endereço"
   const sectionMatch = html.match(/class="section-text"[^>]*>([\s\S]*?)<\/div>/i);
@@ -176,14 +171,14 @@ async function main() {
           } catch (_) {}
         }
 
-        // Usa endereço do Maps se tiver bairro (contém "|"), senão usa o da página individual
-        const finalAddress = item.address.includes("|") ? item.address : (detailAddress || item.address);
-        console.log(`    [final] "${finalAddress}"`);
-        if (!item.address.includes("|")) {
-          console.log(`    [fallback] maps="${item.address}" detail="${detailAddress}"`);
-        }
+        // Usa o endereço mais completo: prefere o que tem mais info após o "|"
+        const mapsAfterPipe = item.address.includes("|") ? item.address.split("|")[1] : "";
+        const detailAfterPipe = detailAddress.includes("|") ? detailAddress.split("|")[1] : "";
+        const finalAddress = detailAfterPipe.length > mapsAfterPipe.length
+          ? detailAddress
+          : (item.address || detailAddress);
+
         const { neighborhood, city, state } = parseAddress(finalAddress);
-        if (!city) console.log(`    [sem cidade] addr="${finalAddress}"`);
 
         const coords = finalAddress
           ? await geocode(finalAddress, city, state)
