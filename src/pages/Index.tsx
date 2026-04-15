@@ -227,10 +227,10 @@ const Index = () => {
             <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("filtros") }}>Filtros</span>
             {hasActiveFilters && (
               <span style={{
-                background: openPanel === "filtros" ? "#fff" : "var(--primary)",
-                color: openPanel === "filtros" ? "var(--primary)" : "#fff",
-                borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800,
-                display: "flex", alignItems: "center", justifyContent: "center",
+                background: openPanel === "filtros" ? "rgb(0 0 0 / 15%)" : "var(--primary)",
+                color: openPanel === "filtros" ? "rgb(0 0 0 / 90%)" : "#fff",
+                borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800,
+                display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18,
               }}>{disabledTags.size}</span>
             )}
           </div>
