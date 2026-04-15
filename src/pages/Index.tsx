@@ -202,11 +202,11 @@ const Index = () => {
     </div>
   );
 
-  // Fechado: laranja suave (0.06) + laranja. Aberto: laranja mais forte (0.12) + preto 75%
+  // Fechado: laranja bem claro + texto laranja escuro. Aberto: laranja forte + texto branco
   const panelBg = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(232,82,26,0.06)" : "rgba(232,82,26,0.12)";
+    openPanel === panel ? "rgba(232,82,26,0.85)" : "rgba(232,82,26,0.08)";
   const panelColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "var(--primary)" : "rgba(26,18,8,0.75)";
+    openPanel === panel ? "#ffffff" : "#c43d0f";
 
   const filterPanel = (
     <div>
@@ -225,7 +225,8 @@ const Index = () => {
             <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("filtros") }}>Filtros</span>
             {hasActiveFilters && (
               <span style={{
-                background: "var(--primary)", color: "#fff",
+                background: openPanel === "filtros" ? "#fff" : "var(--primary)",
+                color: openPanel === "filtros" ? "var(--primary)" : "#fff",
                 borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>{disabledTags.size}</span>
