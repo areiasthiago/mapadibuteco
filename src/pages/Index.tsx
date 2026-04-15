@@ -149,7 +149,7 @@ const Index = () => {
 
   const statusLine = (panel: "filtros" | "lista") => (
     <span style={{ fontSize: 12, color: panelSubColor(panel) }}>
-      {filtered.length} butecos visíveis
+      {filtered.length} butecos no seu mapa
       {userLocation && " · por distância"}
       {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
     </span>
