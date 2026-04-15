@@ -18,8 +18,15 @@ export default function Header({ selectedCity, onCityChange, butecoCount, geoAct
         <div className="flex items-center gap-2">
           <Beer size={28} />
           <div>
-            <h1 className="font-extrabold text-xl leading-none tracking-tight">Mapa di Buteco</h1>
-            <p className="text-xs opacity-80">{butecoCount} visíveis · <span className="opacity-70">v{version} beta</span></p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h1 className="font-extrabold text-xl leading-none tracking-tight">Mapa di Buteco</h1>
+              <span style={{
+                fontSize: 10, fontWeight: 700, padding: "2px 6px",
+                borderRadius: 6, background: "rgba(255,255,255,0.2)",
+                color: "#fff", letterSpacing: "0.04em", lineHeight: 1.4,
+              }}>v{version} beta</span>
+            </div>
+            <p className="text-xs opacity-70 mt-0.5">{butecoCount} no seu mapa</p>
           </div>
         </div>
         {/* Select só aparece quando geo falhou */}
