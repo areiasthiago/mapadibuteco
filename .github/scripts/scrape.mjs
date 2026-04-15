@@ -79,7 +79,7 @@ function extractListPage(html) {
 
     // Endereço via link "Como chegar" do Google Maps — mais padronizado
     const mapsMatch = block.match(/maps\/search\/\?api=1&query=([^"]+)"/);
-    const address = mapsMatch ? decodeURIComponent(mapsMatch[1].trim()) : "";
+    const address = mapsMatch ? decodeHtml(decodeURIComponent(mapsMatch[1].trim())) : "";
 
     const linkMatch = block.match(/href="(https?:\/\/comidadibuteco\.com\.br\/buteco\/[^"]+)"/);
     const link = linkMatch ? linkMatch[1] : "";
@@ -96,7 +96,7 @@ function extractDetailPage(html) {
   // Estrutura real: <p><b>Endereço: </b>endereço aqui</p>
   let address = "";
   const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<]+)/i);
-  if (addrMatch) address = addrMatch[1].trim();
+  if (addrMatch) address = decodeHtml(addrMatch[1].trim());
 
   // Debug: loga o <p> completo onde ficaria o endereço
   const addrPMatch = html.match(/<p[^>]*>[^<]*<b>Endere[çc]o[^<]*<\/b>[^<]*<\/p>/i);
