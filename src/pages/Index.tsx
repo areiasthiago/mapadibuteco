@@ -153,7 +153,7 @@ const Index = () => {
   };
 
   const statusLine = (panel: "filtros" | "lista") => (
-    <span style={{ fontSize: 11, color: panelSubColor(panel) }}>
+    <span style={{ fontSize: 12, color: panelSubColor(panel) }}>
       {filtered.length} butecos
       {userLocation && " · por distância"}
       {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
@@ -206,9 +206,9 @@ const Index = () => {
   const panelBg = (panel: "filtros" | "lista") =>
     openPanel === panel ? "rgba(232,82,26,0.5)" : "rgba(232,82,26,0.08)";
   const panelColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "#1a0800" : "#c43d0f";
+    openPanel === panel ? "rgb(0 0 0 / 90%)" : "#c43d0f";
   const panelSubColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(26,8,0,0.65)" : "rgba(196,61,15,0.7)";
+    openPanel === panel ? "rgba(0,0,0,0.6)" : "rgba(196,61,15,0.7)";
 
   const filterPanel = (
     <div>
@@ -280,9 +280,13 @@ const Index = () => {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <List size={14} color={panelColor("lista")} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("lista") }}>
-              Butecos ({filtered.length})
-            </span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("lista") }}>Butecos</span>
+            <span style={{
+              background: openPanel === "lista" ? "rgb(0 0 0 / 15%)" : "var(--primary)",
+              color: openPanel === "lista" ? "rgb(0 0 0 / 90%)" : "#fff",
+              borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800,
+              display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18,
+            }}>{filtered.length}</span>
           </div>
           {statusLine("lista")}
         </div>
