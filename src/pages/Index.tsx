@@ -152,8 +152,8 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
-  const statusLine = (
-    <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+  const statusLine = (panel: "filtros" | "lista") => (
+    <span style={{ fontSize: 11, color: panelSubColor(panel) }}>
       {filtered.length} butecos
       {userLocation && " · por distância"}
       {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
@@ -202,11 +202,13 @@ const Index = () => {
     </div>
   );
 
-  // Fechado: laranja bem claro + texto laranja escuro. Aberto: laranja forte + texto branco
+  // Fechado: laranja bem claro + texto laranja escuro. Aberto: laranja 50% + texto preto
   const panelBg = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(232,82,26,0.85)" : "rgba(232,82,26,0.08)";
+    openPanel === panel ? "rgba(232,82,26,0.5)" : "rgba(232,82,26,0.08)";
   const panelColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "#ffffff" : "#c43d0f";
+    openPanel === panel ? "#1a0800" : "#c43d0f";
+  const panelSubColor = (panel: "filtros" | "lista") =>
+    openPanel === panel ? "rgba(26,8,0,0.65)" : "rgba(196,61,15,0.7)";
 
   const filterPanel = (
     <div>
@@ -232,7 +234,7 @@ const Index = () => {
               }}>{disabledTags.size}</span>
             )}
           </div>
-          {statusLine}
+          {statusLine("filtros")}
         </div>
         <ChevronDown size={16} color={panelColor("filtros")} style={{
           transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
@@ -282,7 +284,7 @@ const Index = () => {
               Butecos ({filtered.length})
             </span>
           </div>
-          {statusLine}
+          {statusLine("lista")}
         </div>
         <ChevronDown size={16} color={panelColor("lista")} style={{
           transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
