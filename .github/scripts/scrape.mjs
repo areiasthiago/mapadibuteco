@@ -47,7 +47,6 @@ function parseAddress(address) {
 
 function extractListPage(html) {
   const items = [];
-  // Cada buteco: <div class="item">...<div class="caption"><h2>Nome</h2><p>Endereço</p>...<a href="URL detalhes">
   const itemRegex = /<div class="item">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g;
   let match;
   while ((match = itemRegex.exec(html)) !== null) {
@@ -57,8 +56,9 @@ function extractListPage(html) {
     if (!nameMatch) continue;
     const name = nameMatch[1].trim();
 
-    const addrMatch = block.match(/<p[^>]*>([^<]+)<\/p>/);
-    const address = addrMatch ? addrMatch[1].trim() : "";
+    // Endereço via link "Como chegar" do Google Maps — mais padronizado
+    const mapsMatch = block.match(/maps\/search\/\?api=1&query=([^"]+)"/);
+    const address = mapsMatch ? decodeURIComponent(mapsMatch[1].trim()) : "";
 
     const linkMatch = block.match(/href="(https?:\/\/comidadibuteco\.com\.br\/buteco\/[^"]+)"/);
     const link = linkMatch ? linkMatch[1] : "";
