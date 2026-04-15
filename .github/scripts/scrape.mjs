@@ -84,7 +84,13 @@ function extractDetailPage(html) {
     ? descMatch[1].replace(/<[^>]+>/g, "").trim()
     : "Prato concorrente do Comida di Buteco 2026.";
 
-  return { dish, dishDescription };
+  // Endereço completo da página individual (fallback)
+  // Estrutura: <div class="section-text">...<b>Endereço: </b>ENDEREÇO...
+  let address = "";
+  const addrMatch = html.match(/<b>Endere[çc]o:\s*<\/b>\s*([^<\n]+)/i);
+  if (addrMatch) address = addrMatch[1].trim();
+
+  return { dish, dishDescription, address };
 }
 
 async function geocode(address, city, state) {
@@ -127,9 +133,10 @@ async function main() {
           continue;
         }
 
-        // Busca detalhes na página individual (prato e descrição)
+        // Busca detalhes na página individual (prato, descrição e endereço fallback)
         let dish = "";
         let dishDescription = "Prato concorrente do Comida di Buteco 2026.";
+        let detailAddress = "";
         if (item.link) {
           try {
             await sleep(800);
@@ -137,13 +144,16 @@ async function main() {
             const detail = extractDetailPage(detailHtml);
             dish = detail.dish;
             dishDescription = detail.dishDescription;
+            detailAddress = detail.address;
           } catch (_) {}
         }
 
-        const { neighborhood, city, state } = parseAddress(item.address);
+        // Usa endereço do Maps se tiver bairro (contém "|"), senão usa o da página individual
+        const finalAddress = item.address.includes("|") ? item.address : (detailAddress || item.address);
+        const { neighborhood, city, state } = parseAddress(finalAddress);
 
-        const coords = item.address
-          ? await geocode(item.address, city, state)
+        const coords = finalAddress
+          ? await geocode(finalAddress, city, state)
           : { lat: 0, lng: 0 };
 
         results.push({
