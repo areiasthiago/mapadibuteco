@@ -21,6 +21,8 @@ jobs:
           node-version: 20
 
       - name: Run scraper
+        env:
+          RESET: "true"
         run: node .github/scripts/scrape.mjs
 
       - name: Commit results

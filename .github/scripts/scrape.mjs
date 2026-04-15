@@ -136,10 +136,12 @@ async function main() {
   let results = [];
   let existingNames = new Set();
 
-  if (existsSync(OUTPUT)) {
+  if (existsSync(OUTPUT) && process.env.RESET !== "true") {
     results = JSON.parse(readFileSync(OUTPUT, "utf-8"));
     results.forEach((b) => existingNames.add(b.name.toLowerCase()));
     console.log(`Base existente: ${results.length} butecos`);
+  } else {
+    console.log("Iniciando do zero.");
   }
 
   let nextId = results.length > 0 ? Math.max(...results.map((b) => b.id)) + 1 : 1;
