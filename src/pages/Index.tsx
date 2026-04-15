@@ -207,14 +207,14 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.06)" : "var(--muted)",
+          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.12)" : "rgba(232,82,26,0.06)",
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "var(--primary)" : "var(--foreground)"} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "filtros" ? "var(--primary)" : "var(--foreground)" }}>Filtros</span>
+          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)"} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)" }}>Filtros</span>
           {hasActiveFilters && (
             <span style={{
               background: "var(--primary)", color: "#fff",
@@ -223,7 +223,7 @@ const Index = () => {
             }}>{disabledTags.size}</span>
           )}
         </div>
-        <ChevronDown size={16} color={openPanel === "filtros" ? "var(--primary)" : "var(--foreground)"} style={{
+        <ChevronDown size={16} color={openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)"} style={{
           transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
@@ -259,18 +259,18 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.06)" : "var(--muted)",
+          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.12)" : "rgba(232,82,26,0.06)",
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease", flexShrink: 0,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <List size={14} color={openPanel === "lista" ? "var(--primary)" : "var(--foreground)"} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "lista" ? "var(--primary)" : "var(--foreground)" }}>
+          <List size={14} color={openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)"} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)" }}>
             Butecos ({filtered.length})
           </span>
         </div>
-        <ChevronDown size={16} color={openPanel === "lista" ? "var(--primary)" : "var(--foreground)"} style={{
+        <ChevronDown size={16} color={openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)"} style={{
           transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
           transition: "transform 0.2s ease",
         }} />
