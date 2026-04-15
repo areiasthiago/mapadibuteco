@@ -142,8 +142,13 @@ export default function CircuitPanel({ anchor, allButecos, onClose }: CircuitPan
             </p>
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, borderRadius: 6, display: "flex" }}>
-          <X size={18} color="var(--muted-foreground)" />
+        <button onClick={onClose} style={{
+          background: "var(--primary)", border: "none", cursor: "pointer",
+          padding: "6px 12px", borderRadius: 999,
+          display: "flex", alignItems: "center", gap: 6,
+          color: "#fff", fontSize: 13, fontWeight: 600,
+        }}>
+          <X size={14} color="#fff" /> Fechar
         </button>
       </div>
 
