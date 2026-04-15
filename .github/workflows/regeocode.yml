@@ -1,0 +1,36 @@
+name: Regeocode Butecos
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regeocode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run regeocode
+        run: node .github/scripts/regeocode.mjs
+
+      - name: Commit results
+        run: |
+          git config --global user.email "scraper@mapadibuteco"
+          git config --global user.name "Mapa di Buteco Scraper"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "Nenhuma mudança"
+          else
+            git commit -m "data: regeocodificação $(date '+%Y-%m-%d %H:%M')"
+            git push
+          fi

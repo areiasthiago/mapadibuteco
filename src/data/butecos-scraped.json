@@ -765,8 +765,8 @@
     "lat": -29.9204464,
     "lng": -51.1175296,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09030538/bahbrasa_bolinhodobrasa_portoalegre_2026_israhramos_1.jpg",
-    "city": "",
-    "state": "",
+    "city": "Canoas",
+    "state": "RS",
     "tags": []
   },
   {
@@ -1024,15 +1024,15 @@
   {
     "id": 74,
     "name": "Bar Calçada Alta",
-    "neighborhood": "",
+    "neighborhood": "Centro",
     "dish": "Banzeiro Amazônico",
     "dishDescription": "Petisco amazônico de pirarucu seco frito com tucupi, camarão, jambu e farinha Uarini crocante.",
     "address": "Rua Costa Azevedo, 96 | Centro, Manaus - AM.",
     "lat": -3.1327887,
     "lng": -60.0222643,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/08073236/barcalcadaalta_banzeiroamazonico_manaus_2026_maikereislima-01.jpg",
-    "city": "",
-    "state": "",
+    "city": "Manaus",
+    "state": "AM",
     "tags": []
   },
   {
@@ -1185,8 +1185,8 @@
     "lat": -7.9777599,
     "lng": -34.8900963,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09090449/bar_da_guarita_cabidela_da_vovo_recife_2026_frederico_lobo_01.jpg",
-    "city": "",
-    "state": "",
+    "city": "Olinda",
+    "state": "PE",
     "tags": []
   },
   {
@@ -1990,15 +1990,15 @@
   {
     "id": 143,
     "name": "Bar do Lê",
-    "neighborhood": "",
+    "neighborhood": "Campos Elísios",
     "dish": "Tulipinha",
     "dishDescription": "Porção de tulipa com molho de alho e alho-poró.",
     "address": "Rua Capitão Salomão, 1439 - Campos Elísios, Ribeirão Preto",
     "lat": -21.1685509,
     "lng": -47.8031984,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09051854/bardole_tulipinha_ribeiraopreto_2026_renataprado1.jpg",
-    "city": "",
-    "state": "",
+    "city": "Ribeirão Preto",
+    "state": "SP",
     "tags": []
   },
   {
@@ -3271,8 +3271,8 @@
     "lat": -3.0893115,
     "lng": -60.0182686,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/08073339/barrigudos_escarolinhoprimavera_manaus_2026_maikereislima-01.jpg",
-    "city": "",
-    "state": "",
+    "city": "Manaus",
+    "state": "AM",
     "tags": []
   },
   {
@@ -5560,15 +5560,15 @@
   {
     "id": 398,
     "name": "Butiquim do Ziriguidum",
-    "neighborhood": "",
+    "neighborhood": "Campos Elísios",
     "dish": "Trio Caipira",
     "dishDescription": "Linguiça caipira, enrolada com rúcula e tomate seco.",
     "address": "R. Onze de Agosto, 1978 - , Campos Elísios, Ribeirão Preto - SP",
     "lat": -21.1559198,
     "lng": -47.7926846,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09052016/butiquimdoziriguidum_triocaipira_ribeiraopreto_2026_renataprado1.jpg",
-    "city": "",
-    "state": "",
+    "city": "Ribeirão Preto",
+    "state": "SP",
     "tags": []
   },
   {
@@ -6120,15 +6120,15 @@
   {
     "id": 438,
     "name": "Casa Amarela Bar",
-    "neighborhood": "",
+    "neighborhood": "Santo Antônio",
     "dish": "Escondiflor",
     "dishDescription": "Escondidinho de couve-flor com carne-seca.",
     "address": "Rua do Carmo, 14, Santo Antônio, Salvador",
     "lat": -12.968201,
     "lng": -38.5073596,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09094617/casaamareladocarmo_escondeflor_salvador_2026_joaobotelho_2.jpg",
-    "city": "",
-    "state": "",
+    "city": "Salvador",
+    "state": "BA",
     "tags": []
   },
   {
@@ -6771,8 +6771,8 @@
     "lat": -12.9870822,
     "lng": -38.5043159,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/09094625/comdende_camaruana_salvador_2026_joaobotelho_4.jpg",
-    "city": "",
-    "state": "",
+    "city": "Salvador",
+    "state": "BA",
     "tags": []
   },
   {
@@ -9809,8 +9809,8 @@
     "lat": 0,
     "lng": 0,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/12062030/jantinhadofabinho_linguicaatropelada_goias_2026_jaredmagalhaes4-scaled.jpg",
-    "city": "",
-    "state": "",
+    "city": "Goiânia",
+    "state": "GO",
     "tags": []
   },
   {
@@ -13582,15 +13582,15 @@
   {
     "id": 971,
     "name": "Santa Esquina",
-    "neighborhood": "",
+    "neighborhood": "Jardim Nova Europa",
     "dish": "Escondidinho do Popeye",
     "dishDescription": "Escondidinho de espinafre com ricota. Acompanha molho da casa.",
     "address": "Avenida Estados Unidos 393 - Jardim Nova Europa",
     "lat": -22.9377435,
     "lng": -47.0671374,
     "image": "https://cdb-static-files.s3.amazonaws.com/wp-content/uploads/2026/03/07034128/santaesquina_escondidinhodopopeye_campinas_2026_dreisonmedeiros-01.jpg",
-    "city": "",
-    "state": "",
+    "city": "Campinas",
+    "state": "SP",
     "tags": []
   },
   {
