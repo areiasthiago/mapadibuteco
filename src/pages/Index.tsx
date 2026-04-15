@@ -152,6 +152,14 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
+  const statusLine = (
+    <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>
+      {filtered.length} butecos
+      {userLocation && " · por distância"}
+      {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
+    </span>
+  );
+
   const searchBar = (
     <div style={{ padding: "12px", borderBottom: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ position: "relative" }}>
@@ -166,13 +174,6 @@ const Index = () => {
             fontSize: 14, color: "var(--foreground)", outline: "none",
           }}
         />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted-foreground)" }}>
-        <span style={{ fontSize: 12 }}>
-          {filtered.length} butecos encontrados
-          {userLocation && " · ordenados por distância"}
-          {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
-        </span>
       </div>
     </div>
   );
@@ -201,31 +202,40 @@ const Index = () => {
     </div>
   );
 
+  // Fechado: laranja suave (0.06) + laranja. Aberto: laranja mais forte (0.12) + preto 75%
+  const panelBg = (panel: "filtros" | "lista") =>
+    openPanel === panel ? "rgba(232,82,26,0.06)" : "rgba(232,82,26,0.12)";
+  const panelColor = (panel: "filtros" | "lista") =>
+    openPanel === panel ? "var(--primary)" : "rgba(26,18,8,0.75)";
+
   const filterPanel = (
     <div>
       <button
         onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.12)" : "rgba(232,82,26,0.06)",
+          padding: "12px 16px", background: panelBg("filtros"),
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SlidersHorizontal size={14} color={openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)"} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)" }}>Filtros</span>
-          {hasActiveFilters && (
-            <span style={{
-              background: "var(--primary)", color: "#fff",
-              borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>{disabledTags.size}</span>
-          )}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SlidersHorizontal size={14} color={panelColor("filtros")} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("filtros") }}>Filtros</span>
+            {hasActiveFilters && (
+              <span style={{
+                background: "var(--primary)", color: "#fff",
+                borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>{disabledTags.size}</span>
+            )}
+          </div>
+          {statusLine}
         </div>
-        <ChevronDown size={16} color={openPanel === "filtros" ? "rgba(26,18,8,0.75)" : "var(--primary)"} style={{
+        <ChevronDown size={16} color={panelColor("filtros")} style={{
           transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)",
-          transition: "transform 0.2s ease",
+          transition: "transform 0.2s ease", flexShrink: 0,
         }} />
       </button>
       {openPanel === "filtros" && (
@@ -259,20 +269,23 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.12)" : "rgba(232,82,26,0.06)",
+          padding: "12px 16px", background: panelBg("lista"),
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease", flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <List size={14} color={openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)"} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)" }}>
-            Butecos ({filtered.length})
-          </span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <List size={14} color={panelColor("lista")} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("lista") }}>
+              Butecos ({filtered.length})
+            </span>
+          </div>
+          {statusLine}
         </div>
-        <ChevronDown size={16} color={openPanel === "lista" ? "rgba(26,18,8,0.75)" : "var(--primary)"} style={{
+        <ChevronDown size={16} color={panelColor("lista")} style={{
           transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)",
-          transition: "transform 0.2s ease",
+          transition: "transform 0.2s ease", flexShrink: 0,
         }} />
       </button>
       {openPanel === "lista" && (
@@ -341,10 +354,18 @@ const Index = () => {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ padding: "16px 16px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ padding: "16px 16px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
                 <h2 style={{ fontWeight: 700, fontSize: 16 }}>Busca e Filtros</h2>
-                <button onClick={() => setMobileListOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
-                  <X size={20} color="var(--muted-foreground)" />
+                <button
+                  onClick={() => setMobileListOpen(false)}
+                  style={{
+                    background: "var(--primary)", border: "none", cursor: "pointer",
+                    padding: "6px 12px", borderRadius: 999,
+                    display: "flex", alignItems: "center", gap: 6,
+                    color: "#fff", fontSize: 13, fontWeight: 600,
+                  }}
+                >
+                  <X size={14} color="#fff" /> Fechar e aplicar
                 </button>
               </div>
               <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
