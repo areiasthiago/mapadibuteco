@@ -207,7 +207,7 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.06)" : "var(--background)",
+          padding: "12px 16px", background: openPanel === "filtros" ? "rgba(232,82,26,0.06)" : "var(--muted)",
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease",
         }}
@@ -259,7 +259,7 @@ const Index = () => {
         onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.06)" : "var(--background)",
+          padding: "12px 16px", background: openPanel === "lista" ? "rgba(232,82,26,0.06)" : "var(--muted)",
           border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer",
           transition: "background 0.2s ease", flexShrink: 0,
         }}
