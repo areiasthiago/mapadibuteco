@@ -179,6 +179,7 @@ async function main() {
 
         // Usa endereço do Maps se tiver bairro (contém "|"), senão usa o da página individual
         const finalAddress = item.address.includes("|") ? item.address : (detailAddress || item.address);
+        console.log(`    [final] "${finalAddress}"`);
         if (!item.address.includes("|")) {
           console.log(`    [fallback] maps="${item.address}" detail="${detailAddress}"`);
         }
