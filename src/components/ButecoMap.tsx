@@ -1,7 +1,7 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import type { Buteco } from "@/data/butecos";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { TAG_MAP } from "@/lib/tags";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -13,71 +13,43 @@ L.Icon.Default.mergeOptions({
 
 const defaultIcon = L.divIcon({
   className: "custom-marker",
-  html: `<div style="
-    background: #e8521a;
-    border: 3px solid white;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
-    font-size: 11px;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-  ">🍺</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-  popupAnchor: [0, -16],
+  html: `<div style="background:#e8521a;border:3px solid white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,0.35);font-size:11px;color:white;cursor:pointer;transition:transform 0.15s ease;">🍺</div>`,
+  iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -16],
 });
 
 const selectedIcon = L.divIcon({
   className: "custom-marker",
-  html: `<div style="
-    background: #e8521a;
-    border: 3px solid #fff;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 0 4px rgba(232,82,26,0.3), 0 4px 16px rgba(0,0,0,0.4);
-    font-size: 14px;
-    color: white;
-    cursor: pointer;
-  ">🍺</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -20],
+  html: `<div style="background:#e8521a;border:3px solid #fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(232,82,26,0.3),0 4px 16px rgba(0,0,0,0.4);font-size:14px;color:white;cursor:pointer;">🍺</div>`,
+  iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -20],
 });
 
 const userIcon = L.divIcon({
   className: "user-marker",
-  html: `<div style="
-    background: #3b82f6;
-    border: 3px solid white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    box-shadow: 0 0 0 6px rgba(59,130,246,0.25), 0 3px 12px rgba(0,0,0,0.35);
-  "></div>`,
-  iconSize: [18, 18],
-  iconAnchor: [9, 9],
+  html: `<div style="background:#3b82f6;border:3px solid white;border-radius:50%;width:18px;height:18px;box-shadow:0 0 0 6px rgba(59,130,246,0.25),0 3px 12px rgba(0,0,0,0.35);"></div>`,
+  iconSize: [18, 18], iconAnchor: [9, 9],
 });
 
-function FitBounds({ userLocation, cityCenter, cityZoom }: {
+// Componente que emite bounds quando o mapa move/zoom
+function BoundsWatcher({ onBoundsChange }: { onBoundsChange: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
+    moveend: () => onBoundsChange(map.getBounds()),
+    zoomend: () => onBoundsChange(map.getBounds()),
+  });
+  useEffect(() => {
+    onBoundsChange(map.getBounds());
+  }, []);
+  return null;
+}
+
+function FlyTo({ userLocation, cityCenter, cityZoom }: {
   userLocation: [number, number] | null;
-  cityCenter: [number, number];
+  cityCenter: [number, number] | null;
   cityZoom: number;
 }) {
   const map = useMap();
   const fittedToUser = useRef(false);
   const prevCityCenter = useRef(cityCenter);
 
-  // Quando localização do usuário chegar, voa pra ela (só uma vez)
   useEffect(() => {
     if (userLocation && !fittedToUser.current) {
       fittedToUser.current = true;
@@ -85,14 +57,15 @@ function FitBounds({ userLocation, cityCenter, cityZoom }: {
     }
   }, [userLocation, map]);
 
-  // Quando cidade muda manualmente (usuário trocou no select), voa pro centro
   useEffect(() => {
-    const [prevLat, prevLng] = prevCityCenter.current;
-    const [newLat, newLng] = cityCenter;
-    const changed = prevLat !== newLat || prevLng !== newLng;
+    if (!cityCenter) return;
+    const prev = prevCityCenter.current;
+    const changed = !prev || prev[0] !== cityCenter[0] || prev[1] !== cityCenter[1];
     if (changed) {
       prevCityCenter.current = cityCenter;
-      map.flyTo(cityCenter, cityZoom, { duration: 1.2 });
+      if (!fittedToUser.current) {
+        map.flyTo(cityCenter, cityZoom, { duration: 1.2 });
+      }
     }
   }, [cityCenter, cityZoom, map]);
 
@@ -112,14 +85,17 @@ interface ButecoMapProps {
   selectedButeco: Buteco | null;
   onSelectButeco: (buteco: Buteco) => void;
   userLocation: [number, number] | null;
-  cityCenter: [number, number];
+  cityCenter: [number, number] | null;
   cityZoom: number;
+  onBoundsChange: (bounds: L.LatLngBounds) => void;
 }
 
-export default function ButecoMap({ butecos, selectedButeco, onSelectButeco, userLocation, cityCenter, cityZoom }: ButecoMapProps) {
+export default function ButecoMap({ butecos, selectedButeco, onSelectButeco, userLocation, cityCenter, cityZoom, onBoundsChange }: ButecoMapProps) {
+  const initialCenter: [number, number] = cityCenter || [-22.9068, -43.1729];
+
   return (
     <MapContainer
-      center={cityCenter}
+      center={initialCenter}
       zoom={cityZoom}
       style={{ width: "100%", height: "100%", minHeight: 400 }}
     >
@@ -127,7 +103,8 @@ export default function ButecoMap({ butecos, selectedButeco, onSelectButeco, use
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <FitBounds userLocation={userLocation} cityCenter={cityCenter} cityZoom={cityZoom} />
+      <BoundsWatcher onBoundsChange={onBoundsChange} />
+      <FlyTo userLocation={userLocation} cityCenter={cityCenter} cityZoom={cityZoom} />
       <MapFlyTo buteco={selectedButeco} />
 
       {userLocation && (
