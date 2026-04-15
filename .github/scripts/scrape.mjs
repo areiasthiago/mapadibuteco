@@ -9,7 +9,7 @@ import { writeFileSync, readFileSync, existsSync } from "fs";
 const BASE_URL = "https://comidadibuteco.com.br/butecos";
 const GEOCODE_URL = "https://nominatim.openstreetmap.org/search";
 const OUTPUT = "src/data/butecos-scraped.json";
-const TOTAL_PAGES = 92;
+const TOTAL_PAGES = 1; // DEBUG: remover depois
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -38,22 +38,29 @@ function decodeHtml(str) {
 }
 
 function parseAddress(address) {
-  // Normaliza travessão e entidades HTML
   const normalized = decodeHtml(address)
-    .replace(/\s*[–—]\s*/g, " - "); // travessão → hífen padrão
+    .replace(/\s*[–—]\s*/g, " - ");
 
   let neighborhood = "", city = "", state = "";
   if (normalized.includes("|")) {
     const after = normalized.split("|")[1]?.trim() || "";
-    const parts = after.split(",");
-    neighborhood = parts[0]?.trim() || "";
-    const cityState = parts.slice(1).join(",").trim();
-    if (cityState.includes("-")) {
-      const idx = cityState.lastIndexOf("-");
-      city = cityState.slice(0, idx).trim();
-      state = cityState.slice(idx + 1).trim();
+    // Formato pode ser: "Bairro, Cidade - UF" ou "Bairro, Cidade, UF" ou "Cidade - UF"
+    // Pega o estado: sempre as 2 últimas letras maiúsculas após o último " - "
+    const stateMatch = after.match(/\s*-\s*([A-Z]{2})\s*$/);
+    if (stateMatch) {
+      state = stateMatch[1].trim();
+      const withoutState = after.slice(0, after.lastIndexOf(stateMatch[0])).trim();
+      const parts = withoutState.split(",");
+      if (parts.length >= 2) {
+        neighborhood = parts[0].trim();
+        city = parts.slice(1).join(",").trim();
+      } else {
+        city = withoutState;
+      }
     } else {
-      city = cityState;
+      const parts = after.split(",");
+      neighborhood = parts[0]?.trim() || "";
+      city = parts.slice(1).join(",").trim();
     }
   }
   return { neighborhood, city, state };
@@ -169,6 +176,7 @@ async function main() {
           console.log(`    [fallback] maps="${item.address}" detail="${detailAddress}"`);
         }
         const { neighborhood, city, state } = parseAddress(finalAddress);
+        if (!city) console.log(`    [sem cidade] addr="${finalAddress}"`);
 
         const coords = finalAddress
           ? await geocode(finalAddress, city, state)
