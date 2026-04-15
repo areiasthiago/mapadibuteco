@@ -202,13 +202,13 @@ const Index = () => {
     </div>
   );
 
-  // Fechado: laranja bem claro + texto laranja escuro. Aberto: laranja 50% + texto preto
+  // Aberto: rgba(232,82,26,0.25) + rgb(196,61,15). Fechado: rgba(232,82,26,0.08) + rgb(20,17,16)
   const panelBg = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(232,82,26,0.5)" : "rgba(232,82,26,0.08)";
+    openPanel === panel ? "rgba(232,82,26,0.25)" : "rgba(232,82,26,0.08)";
   const panelColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgb(0 0 0 / 90%)" : "#c43d0f";
+    openPanel === panel ? "rgb(196,61,15)" : "rgb(20,17,16)";
   const panelSubColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(0,0,0,0.6)" : "rgba(196,61,15,0.7)";
+    openPanel === panel ? "rgba(196,61,15,0.75)" : "rgba(20,17,16,0.55)";
 
   const filterPanel = (
     <div>
@@ -227,8 +227,7 @@ const Index = () => {
             <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("filtros") }}>Filtros</span>
             {hasActiveFilters && (
               <span style={{
-                background: openPanel === "filtros" ? "rgb(0 0 0 / 15%)" : "var(--primary)",
-                color: openPanel === "filtros" ? "rgb(0 0 0 / 90%)" : "#fff",
+                background: "#e8521a", color: "rgb(255,255,255)",
                 borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800,
                 display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18,
               }}>{disabledTags.size}</span>
@@ -282,8 +281,7 @@ const Index = () => {
             <List size={14} color={panelColor("lista")} />
             <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("lista") }}>Butecos</span>
             <span style={{
-              background: openPanel === "lista" ? "rgb(0 0 0 / 15%)" : "var(--primary)",
-              color: openPanel === "lista" ? "rgb(0 0 0 / 90%)" : "#fff",
+              background: "#e8521a", color: "rgb(255,255,255)",
               borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800,
               display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18,
             }}>{filtered.length}</span>
