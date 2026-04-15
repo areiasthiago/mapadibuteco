@@ -5,8 +5,7 @@ import ButecoCard from "@/components/ButecoCard";
 import CircuitPanel from "@/components/CircuitPanel";
 import { butecos, cities } from "@/data/butecos";
 import type { Buteco } from "@/data/butecos";
-import { TAG_MAP, TAG_CATEGORIES } from "@/lib/tags";
-import { Search, SlidersHorizontal, X, ChevronDown, List, MapPin } from "lucide-react";
+import { Search, X, ChevronDown, List, MapPin, SlidersHorizontal } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import L from "leaflet";
 
@@ -20,29 +19,6 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function TagToggle({ tag, enabled, onToggle }: { tag: string; enabled: boolean; onToggle: () => void }) {
-  const t = TAG_MAP[tag];
-  if (!t) return null;
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)" }}>
-      <span style={{ fontSize: 13, fontWeight: 600, color: enabled ? "var(--foreground)" : "var(--muted-foreground)", display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ fontSize: 16 }}>{t.emoji}</span> {t.label}
-      </span>
-      <button onClick={onToggle} style={{
-        width: 40, height: 22, borderRadius: 999,
-        background: enabled ? "var(--primary)" : "var(--border)",
-        border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s ease", flexShrink: 0,
-      }}>
-        <span style={{
-          position: "absolute", top: 2, left: enabled ? 20 : 2,
-          width: 18, height: 18, borderRadius: "50%", background: "#fff",
-          transition: "left 0.2s ease", boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-        }} />
-      </button>
-    </div>
-  );
-}
-
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedButeco, setSelectedButeco] = useState<Buteco | null>(null);
@@ -50,15 +26,11 @@ const Index = () => {
   const [mobileListOpen, setMobileListOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [geoFailed, setGeoFailed] = useState(false);
-  const [disabledTags, setDisabledTags] = useState<Set<string>>(new Set());
-  const [openPanel, setOpenPanel] = useState<"lista" | "filtros">("lista");
   const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
   const isMobile = useIsMobile();
 
   const cityConfig = selectedCity ? cities.find((c) => c.value === selectedCity) ?? null : null;
-  const hasActiveFilters = disabledTags.size > 0;
 
-  // Tenta geolocalização — se falhar, mostra select
   useEffect(() => {
     if (!("geolocation" in navigator)) { setGeoFailed(true); return; }
     const applyLocation = (lat: number, lng: number) => {
@@ -88,29 +60,15 @@ const Index = () => {
     setMapBounds(bounds);
   }, []);
 
-  // Todos os botecos, filtrados por bounds + busca + tags
   const filtered = useMemo(() => {
     const result = butecos.filter((b) => {
-      // Só mostra se o mapa está inicializado e o buteco está nos bounds
       if (!mapBounds) return false;
       if (!mapBounds.contains([b.lat, b.lng])) return false;
-
-      // Filtro de busca
-      const matchSearch = !search ||
+      return !search ||
         b.name.toLowerCase().includes(search.toLowerCase()) ||
         b.neighborhood.toLowerCase().includes(search.toLowerCase()) ||
         b.dish.toLowerCase().includes(search.toLowerCase());
-
-      // Filtro de tags
-      let matchTags = true;
-      if (disabledTags.size > 0) {
-        if (!b.tags || b.tags.length === 0) matchTags = false;
-        else matchTags = !b.tags.some((tag) => disabledTags.has(tag));
-      }
-
-      return matchSearch && matchTags;
     });
-
     if (userLocation) {
       result.sort((a, b) => {
         const distA = getDistanceKm(userLocation[0], userLocation[1], a.lat, a.lng);
@@ -119,15 +77,7 @@ const Index = () => {
       });
     }
     return result;
-  }, [search, disabledTags, userLocation, mapBounds]);
-
-  const toggleTag = (tag: string) => {
-    setDisabledTags((prev) => {
-      const next = new Set(prev);
-      if (next.has(tag)) next.delete(tag); else next.add(tag);
-      return next;
-    });
-  };
+  }, [search, userLocation, mapBounds]);
 
   const handleSelectButeco = (buteco: Buteco) => {
     setSelectedButeco(buteco);
@@ -140,18 +90,9 @@ const Index = () => {
     return d < 1 ? `${Math.round(d * 1000)}m` : `${d.toFixed(1)}km`;
   };
 
-  const panelBg = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(232,82,26,0.25)" : "rgba(232,82,26,0.08)";
-  const panelColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgb(196,61,15)" : "rgb(20,17,16)";
-  const panelSubColor = (panel: "filtros" | "lista") =>
-    openPanel === panel ? "rgba(196,61,15,0.75)" : "rgba(20,17,16,0.55)";
-
-  const statusLine = (panel: "filtros" | "lista") => (
-    <span style={{ fontSize: 12, color: panelSubColor(panel) }}>
-      {filtered.length} butecos no seu mapa
-      {userLocation && " · por distância"}
-      {hasActiveFilters && ` · ${disabledTags.size} filtro${disabledTags.size > 1 ? "s" : ""} ativo${disabledTags.size > 1 ? "s" : ""}`}
+  const statusLine = (
+    <span style={{ fontSize: 12, color: "rgba(196,61,15,0.75)" }}>
+      {filtered.length} butecos no seu mapa{userLocation && " · por distância"}
     </span>
   );
 
@@ -177,44 +118,6 @@ const Index = () => {
       {filtered.length === 0 && (
         <div style={{ textAlign: "center", padding: "32px 0", color: "var(--muted-foreground)", fontSize: 14 }}>
           <p>Nenhum buteco visível nessa área</p>
-          {hasActiveFilters && (
-            <button onClick={() => setDisabledTags(new Set())} style={{ marginTop: 8, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", fontSize: 13 }}>
-              Limpar filtros
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-
-  const filterPanel = (
-    <div>
-      <button onClick={() => setOpenPanel(openPanel === "filtros" ? "lista" : "filtros")} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: panelBg("filtros"), border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer", transition: "background 0.2s ease" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <SlidersHorizontal size={14} color={panelColor("filtros")} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("filtros") }}>Filtros</span>
-            {hasActiveFilters && (
-              <span style={{ background: "#e8521a", color: "rgb(255,255,255)", borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18 }}>{disabledTags.size}</span>
-            )}
-          </div>
-          {statusLine("filtros")}
-        </div>
-        <ChevronDown size={16} color={panelColor("filtros")} style={{ transform: openPanel === "filtros" ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", flexShrink: 0 }} />
-      </button>
-      {openPanel === "filtros" && (
-        <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-          {hasActiveFilters && (
-            <button onClick={() => setDisabledTags(new Set())} style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", marginBottom: 8, padding: 0 }}>
-              Limpar todos os filtros
-            </button>
-          )}
-          {TAG_CATEGORIES.map((cat) => (
-            <div key={cat.label} style={{ marginBottom: 16 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{cat.label}</p>
-              {cat.tags.map((tag) => <TagToggle key={tag} tag={tag} enabled={!disabledTags.has(tag)} onToggle={() => toggleTag(tag)} />)}
-            </div>
-          ))}
         </div>
       )}
     </div>
@@ -222,45 +125,33 @@ const Index = () => {
 
   const listPanel = (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-      <button onClick={() => setOpenPanel(openPanel === "lista" ? "filtros" : "lista")} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: panelBg("lista"), border: "none", borderBottom: "1px solid var(--border)", cursor: "pointer", transition: "background 0.2s ease", flexShrink: 0 }}>
+      <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "rgba(232,82,26,0.25)", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <List size={14} color={panelColor("lista")} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: panelColor("lista") }}>Butecos</span>
-            <span style={{ background: "#e8521a", color: "rgb(255,255,255)", borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18 }}>{filtered.length}</span>
+            <List size={14} color="rgb(196,61,15)" />
+            <span style={{ fontSize: 13, fontWeight: 700, color: "rgb(196,61,15)" }}>Butecos</span>
+            <span style={{ background: "#e8521a", color: "#fff", borderRadius: "999px", padding: "0 7px", height: 18, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", minWidth: 18 }}>{filtered.length}</span>
           </div>
-          {statusLine("lista")}
+          {statusLine}
         </div>
-        <ChevronDown size={16} color={panelColor("lista")} style={{ transform: openPanel === "lista" ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", flexShrink: 0 }} />
-      </button>
-      {openPanel === "lista" && <>{searchBar}{butecoList}</>}
+      </div>
+      {searchBar}
+      {butecoList}
     </div>
   );
 
-  // Overlay quando não tem geo nem cidade selecionada
   const mapOverlay = geoFailed && !selectedCity ? (
-    <div style={{
-      position: "absolute", inset: 0, zIndex: 1000,
-      background: "rgba(26,18,8,0.7)",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16,
-      backdropFilter: "blur(4px)",
-    }}>
+    <div style={{ position: "absolute", inset: 0, zIndex: 1000, background: "rgba(26,18,8,0.7)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, backdropFilter: "blur(4px)" }}>
       <MapPin size={40} color="#e8521a" />
-      <p style={{ color: "#fff", fontSize: 16, fontWeight: 700, textAlign: "center", maxWidth: 260 }}>
-        Selecione uma cidade para explorar os butecos
-      </p>
+      <p style={{ color: "#fff", fontSize: 16, fontWeight: 700, textAlign: "center", maxWidth: 260 }}>Selecione uma cidade para explorar os butecos</p>
       <select
         onChange={(e) => setSelectedCity(e.target.value)}
         defaultValue=""
-        style={{
-          background: "#fff", border: "none", borderRadius: 12,
-          padding: "12px 20px", fontSize: 15, fontWeight: 600,
-          cursor: "pointer", color: "var(--foreground)", minWidth: 200,
-        }}
+        style={{ background: "#fff", border: "none", borderRadius: 12, padding: "12px 20px", fontSize: 15, fontWeight: 600, cursor: "pointer", color: "var(--foreground)", minWidth: 200 }}
       >
         <option value="" disabled>Escolha a cidade...</option>
         {cities.map((c) => (
-          <option key={c.value} value={c.value}>{c.label}</option>
+          <option key={c.value} value={c.value}>{c.label} - {c.state}</option>
         ))}
       </select>
     </div>
@@ -293,22 +184,10 @@ const Index = () => {
           {!mapOverlay && (
             <button
               onClick={() => { setSelectedButeco(null); setMobileListOpen(true); }}
-              style={{
-                position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)",
-                zIndex: 1000, background: hasActiveFilters ? "#c43d0f" : "var(--primary)", color: "#fff",
-                border: "none", borderRadius: 999, padding: "12px 20px",
-                fontSize: 15, fontWeight: 600, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 8,
-                boxShadow: "0 4px 20px rgba(232,82,26,0.4)",
-              }}
+              style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 1000, background: "var(--primary)", color: "#fff", border: "none", borderRadius: 999, padding: "12px 20px", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 4px 20px rgba(232,82,26,0.4)" }}
             >
               <SlidersHorizontal size={20} />
               Busca e Filtros
-              {hasActiveFilters && (
-                <span style={{ background: "#fff", color: "#c43d0f", borderRadius: "50%", width: 18, height: 18, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {disabledTags.size}
-                </span>
-              )}
             </button>
           )}
         </div>
@@ -323,7 +202,6 @@ const Index = () => {
                 </button>
               </div>
               <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
-                {filterPanel}
                 {listPanel}
               </div>
             </div>
@@ -338,10 +216,7 @@ const Index = () => {
       <Header selectedCity={selectedCity} onCityChange={setSelectedCity} butecoCount={filtered.length} geoActive={!!userLocation} />
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <aside style={{ width: 380, flexShrink: 0, background: "var(--background)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <div style={{ overflowY: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
-            {filterPanel}
-            {listPanel}
-          </div>
+          {listPanel}
         </aside>
         <main style={{ flex: 1, position: "relative" }}>
           {mapComponent}
