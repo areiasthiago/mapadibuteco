@@ -4,7 +4,7 @@ import ButecoMap from "@/components/ButecoMap";
 import ButecoCard from "@/components/ButecoCard";
 import CircuitPanel from "@/components/CircuitPanel";
 import { butecos, cities } from "@/data/butecos";
-import type { Buteco, City } from "@/data/butecos";
+import type { Buteco } from "@/data/butecos";
 import { TAG_MAP, TAG_CATEGORIES } from "@/lib/tags";
 import { Search, SlidersHorizontal, X, ChevronDown, List, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,7 +44,7 @@ function TagToggle({ tag, enabled, onToggle }: { tag: string; enabled: boolean; 
 }
 
 const Index = () => {
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedButeco, setSelectedButeco] = useState<Buteco | null>(null);
   const [search, setSearch] = useState("");
   const [mobileListOpen, setMobileListOpen] = useState(false);
@@ -250,7 +250,7 @@ const Index = () => {
         Selecione uma cidade para explorar os butecos
       </p>
       <select
-        onChange={(e) => setSelectedCity(e.target.value as City)}
+        onChange={(e) => setSelectedCity(e.target.value)}
         defaultValue=""
         style={{
           background: "#fff", border: "none", borderRadius: 12,

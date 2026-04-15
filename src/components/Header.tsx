@@ -1,12 +1,11 @@
 import { Beer } from "lucide-react";
 import { cities } from "@/data/butecos";
-import type { City } from "@/data/butecos";
 
 const version = __APP_VERSION__;
 
 interface HeaderProps {
-  selectedCity: City | null;
-  onCityChange: (city: City) => void;
+  selectedCity: string | null;
+  onCityChange: (city: string) => void;
   butecoCount: number;
   geoActive: boolean;
 }
@@ -33,7 +32,7 @@ export default function Header({ selectedCity, onCityChange, butecoCount, geoAct
         {!geoActive && (
           <select
             value={selectedCity ?? ""}
-            onChange={(e) => onCityChange(e.target.value as City)}
+            onChange={(e) => onCityChange(e.target.value)}
             style={{
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.3)",
